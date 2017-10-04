@@ -1,3 +1,4 @@
 # Webgame Project
-A simple webgame created from HTML5, CSS, JS
-Niko Niko Ni~ck
+A web-based version of the classic Bomberman. Implemented using HTML5, CSS, and JavaScript.
+
+The game is displayed using a single HTML5 Canvas element.

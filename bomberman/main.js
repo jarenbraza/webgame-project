@@ -1,13 +1,16 @@
 /*** GAME INSTANTIATION ***/
-/* (15 x 11) */
+/* (15 x 11) = (750 by 550) */
+
+const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40;
 
 var gameInterval;
 var gameCanvas;
 var eventCatcherDiv;
 var hero = [0, 0, 50, 50];		// (nw x-loc, nw y-loc, width, height)
 var wall = [50, 50, 50, 50];	// (nw x-loc, nw y-loc, width, height)
+var expLength = 2;
 
-var isWall = [[false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+var wallArr = [[false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			  [false, true, false, true, false, true, false, true, false, true, false, true, false, true, false],
 			  [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			  [false, true, false, true, false, true, false, true, false, true, false, true, false, true, false],
@@ -20,6 +23,18 @@ var isWall = [[false, false, false, false, false, false, false, false, false, fa
 			  [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]];
 
 var bombArr = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
+
+var expArr =  [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -63,10 +78,12 @@ function drawGame() {
 	var g = gameCanvas.getContext("2d");	// Access canvas
 	
     g.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+	updateBombs();
+	updateExp();
 	drawHero(g);
-	drawBomb(g);
-	drawWall(g);
-	updateBomb();
+	drawBombs(g);
+	drawExp(g);
+	drawStrongWalls(g);
 }
 
 
@@ -74,59 +91,48 @@ function drawGame() {
 /*** FUNCTIONALITY ***/
 
 /* Returns false if obj in way of movement; true otherwise */
-function validMove(heroX, heroY, E) {
-	switch (E.keyCode) {
-	case 37:
-		if (isWall[heroY / 50][heroX / 50 - 1] || bombArr[hero[1] / 50][hero[0] / 50 - 1])	{	// If obj on left side
+function validMove(E) {
+	
+	//Left, Up, Right, Down
+	if (E.keyCode == KEY_LEFT)
+		if (wallArr[hero[1] / 50][hero[0] / 50 - 1] || bombArr[hero[1] / 50][hero[0] / 50 - 1])	// If obj on left side
 			return false;
-		}
-		break;
-	case 38:
-		if (isWall[heroY / 50 - 1][heroX / 50] || bombArr[hero[1] / 50 - 1][hero[0] / 50]) {	// If obj above
+
+	if (E.keyCode == KEY_UP)
+		if (wallArr[hero[1] / 50 - 1][hero[0] / 50] || bombArr[hero[1] / 50 - 1][hero[0] / 50])	// If obj above
 			return false;
-		}
-		break;
-	case 39:
-		if (isWall[heroY / 50][heroX / 50 + 1] || bombArr[hero[1] / 50][hero[0] / 50 + 1]) {	// If obj on right side
+
+	if (E.keyCode == KEY_RIGHT)
+		if (wallArr[hero[1] / 50][hero[0] / 50 + 1] || bombArr[hero[1] / 50][hero[0] / 50 + 1])	// If obj on right side
 			return false;
-		}
-		break;
-	case 40:
-		if (isWall[heroY / 50 + 1][heroX / 50] || bombArr[hero[1] / 50 + 1][hero[0] / 50]) {	// If obj below
+
+	if (E.keyCode == KEY_DOWN)
+		if (wallArr[hero[1] / 50 + 1][hero[0] / 50] || bombArr[hero[1] / 50 + 1][hero[0] / 50])	// If obj below
 			return false;
-		}
-		break;
-	default:
-		break;
-	}
 	
 	return true;	// No wall
 }
 
 /* Update hero coordinates based on key press */
-var heroMove = function(E) {
-	/* Left Up Right Down */
-	switch (E.keyCode) {
-		case 37:
-			if (hero[0] >= hero[2] && validMove(hero[0], hero[1], E))
-				hero[0] -= hero[2];
-			break;
-		case 38:
-			if (hero[1] >= hero[3] && validMove(hero[0], hero[1], E))
-				hero[1] -= hero[3];
-			break;
-		case 39:
-			if (hero[0] <= 750 - hero[2] * 2 && validMove(hero[0], hero[1], E)) // CANVAS WIDTH - HERO WIDTH
-				hero[0] += hero[2];
-			break;
-		case 40:
-			if (hero[1] <= 550 - hero[3] * 2 && validMove(hero[0], hero[1], E)) // CANVAS HEIGHT - HERO HEIGHT
-				hero[1] += hero[3];
-			break;
-		default:
-			break;
-	}
-};
+function heroMove(E) {
+	
+	//Left, Up, Right, Down
+	if (E.keyCode == KEY_LEFT)
+		if (hero[0] >= hero[2] && validMove(E))
+			hero[0] -= hero[2];
+	
+	if (E.keyCode == KEY_UP)
+		if (hero[1] >= hero[3] && validMove(E))
+			hero[1] -= hero[3];
+	
+	if (E.keyCode == KEY_RIGHT)
+		if (hero[0] <= 750 - hero[2] * 2 && validMove(E)) // CANVAS WIDTH - HERO WIDTH
+			hero[0] += hero[2];
+	
+	if (E.keyCode == KEY_DOWN)
+		if (hero[1] <= 550 - hero[3] * 2 && validMove(E)) // CANVAS HEIGHT - HERO HEIGHT
+			hero[1] += hero[3];
+}
 
 /* Draw the hero (50 x 50) */
 function drawHero(g) {
@@ -134,8 +140,8 @@ function drawHero(g) {
 	g.fillRect(hero[0], hero[1], hero[2], hero[3]); // (x, y, width, height)
 }
 
-/* Draw walls (50 x 50) */
-function drawWall(g) {
+/* Draw strong (indestructable) walls (50 x 50) */
+function drawStrongWalls(g) {
 	g.fillStyle = "black";
 	for (i = 0; i <= 600; i += 100) {
 		for (j = 0; j <= 500; j += 100) {
@@ -144,8 +150,15 @@ function drawWall(g) {
 	}
 }
 
+/* Sets bomb array (timer) at hero location */
+function setBomb(E) {
+	if (E.keyCode == 32) {
+		if (bombArr[hero[1] / 50][hero[0] / 50] == 0) bombArr[hero[1] / 50][hero[0] / 50] = 80;
+	}
+}
+
 /* Draws bomb array */
-function drawBomb(g) {
+function drawBombs(g) {
 	/* If bomb exists, draw it */
 	for (i = 0; i < 11; i++) {
 		for (j = 0; j < 15; j++) {
@@ -159,26 +172,71 @@ function drawBomb(g) {
 	}
 }
 
-/* Updates array at hero location */
-function setBomb(E) {
-	if (E.keyCode == 32) {
-		if (bombArr[hero[1] / 50][hero[0] / 50] == 0) {
-			bombArr[hero[1] / 50][hero[0] / 50] = 80;
-		}
-	}
-}
-
 /* Updates bomb array (timer) */
-function updateBomb() {
+function updateBombs() {
 	for (i = 0; i < 11; i++) {
 		for (j = 0; j < 15; j++) {
 			if (bombArr[i][j] == 0) continue;
-			if (bombArr[i][j] == 1) explode();		// NEED TO IMPLEMENT EXPLOSION
+			if (bombArr[i][j] == 1) explode(i, j);
 			bombArr[i][j]--;
 		}
 	}
 }
 
-function explode() {
+/* Sets explosion array (timer) spreading out from (i, j) */
+function explode(i, j) {
+	var g = gameCanvas.getContext("2d");
 	
+	// Checking from the ranges i-2 to i+2, and, j-2 to j+2
+	var xMin = Math.max(0, j - expLength);
+	var xMax = Math.min(14, j + expLength);	// Width - 1
+	var yMin = Math.max(0, i - expLength);
+	var yMax = Math.min(10, i + expLength); // Height - 1
+	
+	// Set timer ONLY if not a wall
+	for (u = i + 1; u <= yMax; u++) {
+		if (wallArr[u][j] == false) expArr[u][j] += 40;
+		else break;
+	}
+	for (u = i - 1; u >= yMin ; u--) {
+		if (wallArr[u][j] == false) expArr[u][j] += 40;
+		else break;
+	}
+	for (v = j + 1; v <= xMax; v++) {
+		if (wallArr[i][v] == false) expArr[i][v] += 40;
+		else break;
+	}
+	for (v = j - 1; v >= xMin ; v--) {
+		if (wallArr[i][v] == false) expArr[i][v] += 40;
+		else break;
+	}
+	expArr[i][j] += 40;	// Center guaranteed to be not a wall
 }
+
+/* Draws explosion array */
+function drawExp(g) {
+	for (i = 0; i < 11; i++) {
+		for (j = 0; j < 15; j++) {
+			if (expArr[i][j] != 0) {
+				g.fillStyle = "green";
+				g.fillRect(j * 50, i * 50, 50, 50);
+			}
+		}
+	}
+}
+
+/* Updates explosion array (timer) */
+function updateExp() {
+	for (i = 0; i < 11; i++) {
+		for (j = 0; j < 15; j++) {
+			if (expArr[i][j] == 0) continue;
+			expArr[i][j]--;
+		}
+	}
+}
+
+
+
+
+
+

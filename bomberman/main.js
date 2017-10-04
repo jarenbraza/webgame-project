@@ -1,17 +1,12 @@
 /*** GAME INSTANTIATION ***/
-
-/*
-const KEY_LEFT = 37;
-const KEY_UP = 38;
-const KEY_RIGHT = 39;
-const KEY_DOWN = 40;
-*/
+/* (15 x 11) */
 
 var gameInterval;
 var gameCanvas;
 var eventCatcherDiv;
 var hero = [0, 0, 50, 50];		// (nw x-loc, nw y-loc, width, height)
 var wall = [50, 50, 50, 50];	// (nw x-loc, nw y-loc, width, height)
+
 var isWall = [[false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
 			  [false, true, false, true, false, true, false, true, false, true, false, true, false, true, false],
 			  [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
@@ -24,10 +19,24 @@ var isWall = [[false, false, false, false, false, false, false, false, false, fa
 			  [false, true, false, true, false, true, false, true, false, true, false, true, false, true, false],
 			  [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]];
 
+var bombArr = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
+
 /* When page has loaded, this function sets up and loads event listeners */
 function startLoading() {
     eventCatcherDiv = document.getElementById("EventCatcher");
-	eventCatcherDiv.addEventListener("keydown", heroMove, false);
+	eventCatcherDiv.addEventListener("keydown", heroMove);	// Arrow Key Handling
+	eventCatcherDiv.addEventListener("keydown", setBomb);	// Spacebar Handling
+	
 	
     gameCanvas = document.getElementById("GraphicsBox");
     gameInterval = setInterval(hasLoaded, 250);
@@ -41,27 +50,49 @@ function hasLoaded() {
 
 
 
+/*** GAME LOOP ***/
+
+/* Sets objects and gets ready for the game (25ms) */
+function startGame() {
+    drawHero(gameCanvas.getContext("2d"));
+    gameInterval = setInterval(drawGame, 25);
+}
+
+/* Reset board, and redraw game objects */
+function drawGame() {
+	var g = gameCanvas.getContext("2d");	// Access canvas
+	
+    g.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+	drawHero(g);
+	drawBomb(g);
+	drawWall(g);
+	updateBomb();
+}
+
+
+
 /*** FUNCTIONALITY ***/
 
+/* Returns false if obj in way of movement; true otherwise */
 function validMove(heroX, heroY, E) {
 	switch (E.keyCode) {
 	case 37:
-		if (isWall[heroY / 50][heroX / 50 - 1])	{	// If wall on left side
+		if (isWall[heroY / 50][heroX / 50 - 1] || bombArr[hero[1] / 50][hero[0] / 50 - 1])	{	// If obj on left side
 			return false;
 		}
 		break;
 	case 38:
-		if (isWall[heroY / 50 - 1][heroX / 50]) {	// If wall above
+		if (isWall[heroY / 50 - 1][heroX / 50] || bombArr[hero[1] / 50 - 1][hero[0] / 50]) {	// If obj above
 			return false;
 		}
 		break;
 	case 39:
-		if (isWall[heroY / 50][heroX / 50 + 1]) {	// If wall on right side
+		if (isWall[heroY / 50][heroX / 50 + 1] || bombArr[hero[1] / 50][hero[0] / 50 + 1]) {	// If obj on right side
 			return false;
 		}
 		break;
 	case 40:
-		if (isWall[heroY / 50 + 1][heroX / 50]) {	// If wall below
+		if (isWall[heroY / 50 + 1][heroX / 50] || bombArr[hero[1] / 50 + 1][hero[0] / 50]) {	// If obj below
 			return false;
 		}
 		break;
@@ -73,7 +104,7 @@ function validMove(heroX, heroY, E) {
 }
 
 /* Update hero coordinates based on key press */
-var heroMove = function (E) {
+var heroMove = function(E) {
 	/* Left Up Right Down */
 	switch (E.keyCode) {
 		case 37:
@@ -95,8 +126,7 @@ var heroMove = function (E) {
 		default:
 			break;
 	}
-	return false;
-}
+};
 
 /* Draw the hero (50 x 50) */
 function drawHero(g) {
@@ -114,18 +144,41 @@ function drawWall(g) {
 	}
 }
 
-
-/*** GAME LOOP ***/
-
-/* Sets objects and gets ready for the game (25ms) */
-function startGame() {
-    drawHero(gameCanvas.getContext("2d"));
-    gameInterval = setInterval(drawGame, 25);
+/* Draws bomb array */
+function drawBomb(g) {
+	/* If bomb exists, draw it */
+	for (i = 0; i < 11; i++) {
+		for (j = 0; j < 15; j++) {
+			if (bombArr[i][j] != 0) {
+				g.fillStyle = "grey";
+				g.beginPath();
+				g.arc(j * 50 + 25, i * 50 + 25, 25, 0, 2*Math.PI);
+				g.fill();
+			}
+		}
+	}
 }
 
-/* Reset board, and redraw game objects */
-function drawGame() {
-    gameCanvas.getContext("2d").clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-	drawHero(gameCanvas.getContext("2d"));
-	drawWall(gameCanvas.getContext("2d"));
+/* Updates array at hero location */
+function setBomb(E) {
+	if (E.keyCode == 32) {
+		if (bombArr[hero[1] / 50][hero[0] / 50] == 0) {
+			bombArr[hero[1] / 50][hero[0] / 50] = 80;
+		}
+	}
+}
+
+/* Updates bomb array (timer) */
+function updateBomb() {
+	for (i = 0; i < 11; i++) {
+		for (j = 0; j < 15; j++) {
+			if (bombArr[i][j] == 0) continue;
+			if (bombArr[i][j] == 1) explode();		// NEED TO IMPLEMENT EXPLOSION
+			bombArr[i][j]--;
+		}
+	}
+}
+
+function explode() {
+	
 }

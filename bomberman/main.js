@@ -199,12 +199,13 @@ function explode(i, j) {
 	// 	If weak wall, break it
 	// 	If strong wall, do nothing
 	for (u = i + 1; u <= yMax; u++) {
-		if (wallArr[u][j] == 0) {
+		if (bombArr[u][j] != 0) {
+			explode(u,j);
+			break;
+		}
+		else if (wallArr[u][j] == 0) {
 			expArr[u][j] = 40;
 			continue;
-		}
-		else if (bombArr[u][j] != 0) {
-			explode(u,j);
 		}
 		else if (wallArr[u][j] == 1) {
 			wallArr[u][j] = 0;
@@ -212,12 +213,13 @@ function explode(i, j) {
 		break;
 	}
 	for (u = i - 1; u >= yMin ; u--) {
-		if (wallArr[u][j] == 0) {
+		if (bombArr[u][j] != 0) {
+			explode(u, j);
+			break;
+		}
+		else if (wallArr[u][j] == 0) {
 			expArr[u][j] = 40;
 			continue;
-		}
-		else if (bombArr[u][j] != 0) {
-			explode(u, j);
 		}
 		else if (wallArr[u][j] == 1) {
 			wallArr[u][j] = 0;
@@ -225,12 +227,13 @@ function explode(i, j) {
 		break;
 	}
 	for (v = j + 1; v <= xMax; v++) {
-		if (wallArr[i][v] == 0) {
+		if (bombArr[i][v] != 0) {
+			explode(i, v);
+			break;
+		}
+		else if (wallArr[i][v] == 0) {
 			expArr[i][v] = 40;
 			continue;
-		}
-		else if (bombArr[i][v] != 0) {
-			explode(i, v);
 		}
 		else if (wallArr[i][v] == 1) {
 			wallArr[i][v] = 0;
@@ -238,12 +241,13 @@ function explode(i, j) {
 		break;
 	}
 	for (v = j - 1; v >= xMin ; v--) {
-		if (wallArr[i][v] == 0) {
+		if (bombArr[i][v] != 0) {
+			explode(i, v);
+			break;
+		}
+		else if (wallArr[i][v] == 0) {
 			expArr[i][v] = 40;
 			continue;
-		}
-		else if (bombArr[i][v] != 0) {
-			explode(i, v);
 		}
 		else if (wallArr[i][v] == 1) {
 			wallArr[i][v] = 0;
@@ -281,7 +285,6 @@ function updateExp() {
 
 /* Sets objects and gets ready for the game (25ms) */
 function startGame() {
-	drawHero(gameCanvas.getContext("2d"));
 	gameInterval = setInterval(drawGame, 25);
 }
 

@@ -7,7 +7,6 @@ var gameInterval;
 var gameCanvas;
 var eventCatcherDiv;
 var hero = [0, 0, 50, 50];		// (nw x-loc, nw y-loc, width, height)
-var wall = [50, 50, 50, 50];	// (nw x-loc, nw y-loc, width, height)
 var expLength = 2;
 
 // 0 = Vacant, 1 = Weak Wall, 2 = Strong (Indestructable) Wall
@@ -24,6 +23,7 @@ var wallArr = [
 			  [0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
 			  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
 
+// 0 = Vacant, >0 = Timer Before Explosion
 var bombArr = [
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -37,6 +37,7 @@ var bombArr = [
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
 
+// 0 = Vacant, >0 = Explosion Duration Left
 var expArr =  [
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -121,7 +122,14 @@ function drawHero(g) {
 	g.fillRect(hero[0], hero[1], hero[2], hero[3]); // (x, y, width, height)
 }
 
-/* Draw strong (indestructable) walls (50 x 50) */
+/* Sets status of hero based on what he's on top of */
+function updateHero() {
+	if (expArr[hero[1]][hero[0]] != 0) {
+		
+	}
+}
+
+/* Draw walls (50 x 50) */
 function drawWalls(g) {
 	for (var i = 0; i < 11; i++) {
 		for (var j = 0; j < 15; j++) {
@@ -179,6 +187,7 @@ function explode(i, j) {
 	var g = gameCanvas.getContext("2d");
 	
 	// Checking from the ranges i-2 to i+2, and, j-2 to j+2
+	// Cuts range short if reaches edge of graph
 	var xMin = Math.max(0, j - expLength);
 	var xMax = Math.min(14, j + expLength);	// Width - 1
 	var yMin = Math.max(0, i - expLength);

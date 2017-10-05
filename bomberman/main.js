@@ -1,14 +1,37 @@
+/*** ADD JQUERY XD ***/
+/*** Unique walls ***/
+
 /*** GAME INSTANTIATION ***/
 /* (15 x 11) = (750 by 550) */
 
 const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40;
+const SCALE = 50;
 
+class Hero {
+	constructor(x, y, leftKey, upKey, rightKey, downKey, bombKey) {
+		this.x = x;
+		this.y = y;
+		this.alive = true;
+		this.leftKey = leftKey;
+		this.upKey = upKey;
+		this.rightKey = rightKey;
+		this.downKey = downKey;
+		this.bombKey = bombKey;
+	}
+}
+
+var boardWidth = 750, boardHeight = 550;
 var gameInterval;
 var gameCanvas;
 var eventCatcherDiv;
-var hero = [0, 0, 50, 50];		// (nw x-loc, nw y-loc, width, height)
-var isAlive = [true, false, false, false]; // Status of the 4 players
 var expLength = 2;
+var hero = [];
+
+/* Hard coding first two heroes ^^ */
+var newHero = new Hero(0, 0, 37, 38, 39, 40, 32);
+hero.push(newHero);
+var newHero = new Hero(700, 0, 65, 87, 68, 83, 32);
+hero.push(newHero);
 
 // 0 = Vacant, 1 = Weak Wall, 2 = Strong (Indestructable) Wall
 var wallArr = [
@@ -77,20 +100,20 @@ function hasLoaded() {
 function validMove(E) {
 	
 	//Left, Up, Right, Down
-	if (E.keyCode == KEY_LEFT)
-		if (wallArr[hero[1] / 50][hero[0] / 50 - 1] || bombArr[hero[1] / 50][hero[0] / 50 - 1])	// If obj on left side
+	if (E.keyCode == hero[0].leftKey)
+		if (wallArr[hero[0].y / 50][hero[0].x / 50 - 1] || bombArr[hero[0].y / 50][hero[0].x / 50 - 1])	// If obj on left side
 			return false;
 
-	if (E.keyCode == KEY_UP)
-		if (wallArr[hero[1] / 50 - 1][hero[0] / 50] || bombArr[hero[1] / 50 - 1][hero[0] / 50])	// If obj above
+	if (E.keyCode == hero[0].upKey)
+		if (wallArr[hero[0].y / 50 - 1][hero[0].x / 50] || bombArr[hero[0].y / 50 - 1][hero[0].x / 50])	// If obj above
 			return false;
 
-	if (E.keyCode == KEY_RIGHT)
-		if (wallArr[hero[1] / 50][hero[0] / 50 + 1] || bombArr[hero[1] / 50][hero[0] / 50 + 1])	// If obj on right side
+	if (E.keyCode == hero[0].rightKey)
+		if (wallArr[hero[0].y / 50][hero[0].x / 50 + 1] || bombArr[hero[0].y / 50][hero[0].x / 50 + 1])	// If obj on right side
 			return false;
 
-	if (E.keyCode == KEY_DOWN)
-		if (wallArr[hero[1] / 50 + 1][hero[0] / 50] || bombArr[hero[1] / 50 + 1][hero[0] / 50])	// If obj below
+	if (E.keyCode == hero[0].downKey)
+		if (wallArr[hero[0].y / 50 + 1][hero[0].x / 50] || bombArr[hero[0].y / 50 + 1][hero[0].x / 50])	// If obj below
 			return false;
 	
 	return true;	// No wall
@@ -100,47 +123,47 @@ function validMove(E) {
 function heroMove(E) {
 	
 	//Left, Up, Right, Down
-	if (E.keyCode == KEY_LEFT)
-		if (hero[0] >= hero[2] && validMove(E))
-			hero[0] -= hero[2];
+	if (E.keyCode == hero[0].leftKey)
+		if (hero[0].x >= SCALE && validMove(E))
+			hero[0].x -= SCALE;
 	
-	if (E.keyCode == KEY_UP)
-		if (hero[1] >= hero[3] && validMove(E))
-			hero[1] -= hero[3];
+	if (E.keyCode == hero[0].upKey)
+		if (hero[0].y >= SCALE && validMove(E))
+			hero[0].y -= SCALE;
 	
-	if (E.keyCode == KEY_RIGHT)
-		if (hero[0] <= 750 - hero[2] * 2 && validMove(E)) // CANVAS WIDTH - HERO WIDTH
-			hero[0] += hero[2];
+	if (E.keyCode == hero[0].rightKey)
+		if (hero[0].x <= boardWidth - SCALE * 2 && validMove(E))
+			hero[0].x += SCALE;
 	
-	if (E.keyCode == KEY_DOWN)
-		if (hero[1] <= 550 - hero[3] * 2 && validMove(E)) // CANVAS HEIGHT - HERO HEIGHT
-			hero[1] += hero[3];
+	if (E.keyCode == hero[0].downKey)
+		if (hero[0].y <= boardHeight - SCALE * 2 && validMove(E))
+			hero[0].y += SCALE;
 }
 
 /* Draw the hero (50 x 50) */
 function drawHero(g) {
 	g.fillStyle = "red";
-	g.fillRect(hero[0], hero[1], hero[2], hero[3]); // (x, y, width, height)
+	g.fillRect(hero[0].x, hero[0].y, SCALE, SCALE); // (x, y, width, height)
 }
 
 /* Sets status of hero based on what he's on top of */
 function updateHero() {
-	if (expArr[hero[1]/50][hero[0]/50] != 0) {
-		isAlive[0] = false;
+	if (expArr[hero[0].y / SCALE][hero[0].x / SCALE] != 0) {
+		hero[0].alive = false;
 	}
 }
 
+/* Generate weak walls randomly */
 function generateWalls() {
-	
 	// Clear weak walls
-	for (i = 0; i < 11; i++)
-		for (j = 0; j < 15; j++)
+	for (i = 0; i < boardHeight / 50; i++)
+		for (j = 0; j < boardWidth / 50; j++)
 			if (wallArr[i][j] != 2)
 				wallArr[i][j] = 0;
 	
 	// Set up weak walls randomly
-	for (i = 0; i < 11; i++) {
-		for (j = 0; j < 15; j++) {
+	for (i = 0; i < boardHeight / 50; i++) {
+		for (j = 0; j < boardWidth / 50; j++) {
 			if ((i == 0 && (j == 0 || j == 1 || j == 13 || j == 14)) ||
 				 	(i == 1 && (j == 0 || j == 14)) ||
 				 	(i == 9 && (j == 0 || j == 14)) ||
@@ -148,7 +171,7 @@ function generateWalls() {
 				continue;	// Skip if corner location
 			}
 			//Otherwise, generate block randomly
-			if (Math.random() >= 0.5)
+			if (Math.random() <= 0.8)
 				if (wallArr[i][j] != 2)
 					wallArr[i][j] = 1;
 		}
@@ -157,15 +180,15 @@ function generateWalls() {
 
 /* Draw walls (50 x 50) */
 function drawWalls(g) {
-	for (var i = 0; i < 11; i++) {
-		for (var j = 0; j < 15; j++) {
+	for (var i = 0; i < boardHeight / SCALE; i++) {
+		for (var j = 0; j < boardWidth / SCALE; j++) {
 			if (wallArr[i][j] == 2) {
 				g.fillStyle = "black";
-				g.fillRect(j * 50, i * 50, 50, 50);
+				g.fillRect(j * SCALE, i * SCALE, SCALE, SCALE);
 			}
 			if (wallArr[i][j] == 1) {
 				g.fillStyle = "#404040";
-				g.fillRect(j * 50, i * 50, 50, 50);
+				g.fillRect(j * SCALE, i * SCALE, SCALE, SCALE);
 			}
 		}
 	}
@@ -173,20 +196,20 @@ function drawWalls(g) {
 
 /* Sets bomb array (timer) at hero location */
 function setBomb(E) {
-	if (E.keyCode == 32 && isAlive[0])
-		if (bombArr[hero[1] / 50][hero[0] / 50] == 0)
-			bombArr[hero[1] / 50][hero[0] / 50] = 80;
+	if (E.keyCode == hero[0].bombKey && hero[0].alive)
+		if (bombArr[hero[0].y / SCALE][hero[0].x / SCALE] == 0)
+			bombArr[hero[0].y / SCALE][hero[0].x / SCALE] = 80;
 }
 
 /* Draws bomb array */
 function drawBombs(g) {
 	/* If bomb exists, draw it */
-	for (var i = 0; i < 11; i++) {
-		for (var j = 0; j < 15; j++) {
+	for (var i = 0; i < boardHeight / SCALE; i++) {
+		for (var j = 0; j < boardWidth / SCALE; j++) {
 			if (bombArr[i][j] != 0) {
 				g.fillStyle = "grey";
 				g.beginPath();
-				g.arc(j * 50 + 25, i * 50 + 25, 25, 0, 2*Math.PI);
+				g.arc(j * SCALE + SCALE / 2, i * SCALE + SCALE / 2, SCALE / 2, 0, 2*Math.PI);
 				g.fill();
 			}
 		}
@@ -195,8 +218,8 @@ function drawBombs(g) {
 
 /* Updates bomb array (timer) */
 function updateBombs() {
-	for (i = 0; i < 11; i++) {
-		for (j = 0; j < 15; j++) {
+	for (i = 0; i < boardHeight / SCALE; i++) {
+		for (j = 0; j < boardWidth / SCALE; j++) {
 			if (bombArr[i][j] == 0) continue;
 			if (bombArr[i][j] == 1) {
 				explode(i, j);
@@ -215,9 +238,9 @@ function explode(i, j) {
 	// Checking from the ranges i-2 to i+2, and, j-2 to j+2
 	// Cuts range short if reaches edge of graph
 	var xMin = Math.max(0, j - expLength);
-	var xMax = Math.min(14, j + expLength);	// Width - 1
+	var xMax = Math.min(boardWidth / SCALE - 1, j + expLength);	// Width - 1
 	var yMin = Math.max(0, i - expLength);
-	var yMax = Math.min(10, i + expLength); // Height - 1
+	var yMax = Math.min(boardHeight / SCALE - 1, i + expLength); // Height - 1
 	
 	// If vacant, fill up with explosion and check next space
 	// Else, stop spreading after checking...
@@ -289,11 +312,11 @@ function explode(i, j) {
 
 /* Draws explosion array */
 function drawExp(g) {
-	for (i = 0; i < 11; i++) {
-		for (j = 0; j < 15; j++) {
+	for (i = 0; i < boardHeight / SCALE; i++) {
+		for (j = 0; j < boardWidth / SCALE; j++) {
 			if (expArr[i][j] != 0) {
 				g.fillStyle = "green";
-				g.fillRect(j * 50, i * 50, 50, 50);
+				g.fillRect(j * SCALE, i * SCALE, SCALE, SCALE);
 			}
 		}
 	}
@@ -301,8 +324,8 @@ function drawExp(g) {
 
 /* Updates explosion array (timer) */
 function updateExp() {
-	for (i = 0; i < 11; i++) {
-		for (j = 0; j < 15; j++) {
+	for (i = 0; i < boardHeight / SCALE; i++) {
+		for (j = 0; j < boardWidth / SCALE; j++) {
 			if (expArr[i][j] == 0) continue;
 			expArr[i][j]--;
 		}
@@ -327,7 +350,8 @@ function drawGame() {
 	updateBombs();
 	updateExp();
 	updateHero();
-	if (isAlive[0]) drawHero(g);
+	if (hero[0].alive)
+		drawHero(g);
 	drawBombs(g);
 	drawExp(g);
 	drawWalls(g);
@@ -335,15 +359,17 @@ function drawGame() {
 
 /* Resets board from start */
 function resetGame(E) {
-	
 	// Clear game, reset values, and start game up again
-	if (E.keyCode == 82) {
-		for (i = 0; i < 4; i++) isAlive[i] = true;
-		hero[0] = 0;
-		hero[1] = 0;
+	if (E.keyCode == 82) {	// R
+		for (i = 0; i < hero.length; i++) {
+			hero[i].alive = true;
+		}
+		hero[0].x = 0;
+		hero[0].y = 0;
+		hero[1].x = 700;
+		hero[1].y = 0;
+		
 		clearInterval(gameInterval);
 		startGame();
 	}
-	
-	
 }

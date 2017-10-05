@@ -7,16 +7,17 @@ var gameInterval;
 var gameCanvas;
 var eventCatcherDiv;
 var hero = [0, 0, 50, 50];		// (nw x-loc, nw y-loc, width, height)
+var isAlive = [true, false, false, false]; // Status of the 4 players
 var expLength = 2;
 
 // 0 = Vacant, 1 = Weak Wall, 2 = Strong (Indestructable) Wall
 var wallArr = [
-				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-			  [0, 2, 1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
+				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			  [0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
 			  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			  [0, 2, 1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
+			  [0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
 			  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			  [0, 2, 0, 2, 1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
+			  [0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
 			  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			  [0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
 			  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -56,7 +57,7 @@ function startLoading() {
 	eventCatcherDiv = document.getElementById("EventCatcher");
 	eventCatcherDiv.addEventListener("keydown", heroMove);	// Arrow Key Handling
 	eventCatcherDiv.addEventListener("keydown", setBomb);	// Spacebar Handling
-	
+	eventCatcherDiv.addEventListener("keydown", resetGame);	// Reset Button (R) Handling
 	
 	gameCanvas = document.getElementById("GraphicsBox");
 	gameInterval = setInterval(hasLoaded, 250);
@@ -124,8 +125,25 @@ function drawHero(g) {
 
 /* Sets status of hero based on what he's on top of */
 function updateHero() {
-	if (expArr[hero[1]][hero[0]] != 0) {
-		
+	if (expArr[hero[1]/50][hero[0]/50] != 0) {
+		isAlive[0] = false;
+	}
+}
+
+function generateWalls() {
+	for (i = 0; i < 11; i++) {
+		for (j = 0; j < 15; j++) {
+			if ((i == 0 && (j == 0 || j == 1 || j == 13 || j == 14)) ||
+				 	(i == 1 && (j == 0 || j == 14)) ||
+				 	(i == 9 && (j == 0 || j == 14)) ||
+					(i == 10 && (j == 0 || j == 1 || j == 13 || j == 14))) {
+				continue;	// Skip if corner location
+			}
+			//Otherwise, generate block randomly
+			if (Math.random() >= 0.5)
+				if (wallArr[i][j] != 2)
+					wallArr[i][j] = 1;
+		}
 	}
 }
 
@@ -147,7 +165,7 @@ function drawWalls(g) {
 
 /* Sets bomb array (timer) at hero location */
 function setBomb(E) {
-	if (E.keyCode == 32)
+	if (E.keyCode == 32 && isAlive[0])
 		if (bombArr[hero[1] / 50][hero[0] / 50] == 0)
 			bombArr[hero[1] / 50][hero[0] / 50] = 80;
 }
@@ -209,6 +227,7 @@ function explode(i, j) {
 		}
 		else if (wallArr[u][j] == 1) {
 			wallArr[u][j] = 0;
+			expArr[u][j] = 40;
 		}
 		break;
 	}
@@ -223,6 +242,7 @@ function explode(i, j) {
 		}
 		else if (wallArr[u][j] == 1) {
 			wallArr[u][j] = 0;
+			expArr[u][j] = 40;
 		}
 		break;
 	}
@@ -237,6 +257,7 @@ function explode(i, j) {
 		}
 		else if (wallArr[i][v] == 1) {
 			wallArr[i][v] = 0;
+			expArr[i][v] = 40;
 		}
 		break;
 	}
@@ -251,6 +272,7 @@ function explode(i, j) {
 		}
 		else if (wallArr[i][v] == 1) {
 			wallArr[i][v] = 0;
+			expArr[i][v] = 40;
 		}
 		break;
 	}
@@ -285,6 +307,7 @@ function updateExp() {
 
 /* Sets objects and gets ready for the game (25ms) */
 function startGame() {
+	generateWalls();
 	gameInterval = setInterval(drawGame, 25);
 }
 
@@ -295,8 +318,20 @@ function drawGame() {
 	g.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 	updateBombs();
 	updateExp();
-	drawHero(g);
+	updateHero();
+	if (isAlive[0]) drawHero(g);
 	drawBombs(g);
 	drawExp(g);
 	drawWalls(g);
+}
+
+/* Resets board from start */
+function resetGame(E) {
+	
+	if (E.keyCode == 82) {
+		for (i = 0; i < 4; i++) isAlive[i] = true;
+		
+	}
+	
+	
 }

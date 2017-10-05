@@ -131,6 +131,14 @@ function updateHero() {
 }
 
 function generateWalls() {
+	
+	// Clear weak walls
+	for (i = 0; i < 11; i++)
+		for (j = 0; j < 15; j++)
+			if (wallArr[i][j] != 2)
+				wallArr[i][j] = 0;
+	
+	// Set up weak walls randomly
 	for (i = 0; i < 11; i++) {
 		for (j = 0; j < 15; j++) {
 			if ((i == 0 && (j == 0 || j == 1 || j == 13 || j == 14)) ||
@@ -328,9 +336,13 @@ function drawGame() {
 /* Resets board from start */
 function resetGame(E) {
 	
+	// Clear game, reset values, and start game up again
 	if (E.keyCode == 82) {
 		for (i = 0; i < 4; i++) isAlive[i] = true;
-		
+		hero[0] = 0;
+		hero[1] = 0;
+		clearInterval(gameInterval);
+		startGame();
 	}
 	
 	

@@ -221,7 +221,6 @@ function explode(i, j, type) {
 	var yMin = Math.max(0, i - hero[type - 1].expLength);
 	var yMax = Math.min(boardHeight / SCALE - 1, i + hero[type - 1].expLength); // Height - 1
 	
-
 	for (u = i + 1; u <= yMax; u++) {
 		if (bombArr[u][j] != 0) {
 			explode(u, j, bombType[u][j]);
@@ -358,19 +357,18 @@ function startGame() {
 					upgradeArr[i][j] = Math.floor(Math.random() * 2) + 1;	// Random number from 1 to 2
 	
 	// Clear bombs and explosions
-	for (i = 0; i < boardHeight / SCALE; i++) {
+	for (i = 0; i < boardHeight / SCALE; i++)
 			for (j = 0; j < boardWidth / SCALE; j++) {
 				bombArr[i][j] = 0;
 				bombType[i][j] = 0;
 				expArr[i][j] = 0;
 			}
-		}
 	
 	// Reset heroes
 	for (i = 0; i < hero.length; i++) {
 		hero[i].x = hero[i].origX;
 		hero[i].y = hero[i].origY;
-		hero[i].numBombs = 1;
+		hero[i].maxBombs = 1;
 		hero[i].expLength = 1;
 		hero[i].alive = true;
 	}
@@ -396,6 +394,7 @@ function drawGame() {
 function resetGame(E) {
 	if (E.keyCode == 82) {	// R
 		clearInterval(gameInterval);
+		document.getElementById("WinnerText").innerHTML = "";
 		startGame();
 	}
 }

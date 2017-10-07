@@ -31,10 +31,9 @@ var eventCatcherDiv;
 var wallArr = [], bombArr = [], bombType = [], expArr =  [], playerArr = [], upgradeArr = [];
 
 var hero = [];
-
-var newHero = new Hero(0, 0, 37, 38, 39, 40, 13, "red");
+var newHero = new Hero(0, 0, 65, 87, 68, 83, 32, "red");
 hero.push(newHero);
-var newHero = new Hero(boardWidth - SCALE, boardHeight - SCALE, 65, 87, 68, 83, 32, "green");
+var newHero = new Hero(boardWidth - SCALE, boardHeight - SCALE, 37, 38, 39, 40, 13, "green");
 hero.push(newHero);
 
 
@@ -291,15 +290,13 @@ function updateExp(g) {
 	// Input: Canvas
 	// Result: If explosion tile exists, draw it and decrease its duration
 	
-	for (i = 0; i < boardHeight / SCALE; i++) {
-		for (j = 0; j < boardWidth / SCALE; j++) {
+	for (i = 0; i < boardHeight / SCALE; i++)
+		for (j = 0; j < boardWidth / SCALE; j++)
 			if (expArr[i][j] != 0) {
 				g.fillStyle = "#8B008B";
 				g.fillRect(j * SCALE, i * SCALE, SCALE, SCALE);
 				expArr[i][j]--;
 			}
-		}
-	}
 }
 
 
@@ -369,6 +366,7 @@ function startGame() {
 		hero[i].x = hero[i].origX;
 		hero[i].y = hero[i].origY;
 		hero[i].maxBombs = 1;
+		hero[i].numBombs = 1;
 		hero[i].expLength = 1;
 		hero[i].alive = true;
 	}
@@ -405,13 +403,13 @@ function displayStats() {
 	document.getElementById("P2S1").innerHTML = "Exp Length = " + hero[1].expLength;
 	document.getElementById("P2S2").innerHTML = "Number of Bombs = " + hero[1].maxBombs;
 	
-	if (hero[0].alive && !(hero[1].alive)) {
+	if (hero[0].alive && !(hero[1].alive))
 		document.getElementById("WinnerText").innerHTML = "Player 1 wins!";
-	}
-	if (hero[1].alive && !(hero[0].alive)) {
+
+	if (hero[1].alive && !(hero[0].alive))
 		document.getElementById("WinnerText").innerHTML = "Player 2 wins!";
-	}
-	if (!(hero[0].alive || hero[1].alive)) {
+
+	if (!(hero[0].alive || hero[1].alive))
 		document.getElementById("WinnerText").innerHTML = "Oh haha um";
-	}
+
 }

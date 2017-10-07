@@ -1,22 +1,48 @@
 <html>
 	
-    <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-        <meta content="utf-8" http-equiv="encoding">
-        <script type="text/javascript" src="main.js"></script>
-    </head>
-	
-    <body> <!-- Can be moved into CSS file if we have too much formatting -->
-        <div id="BackgroundBox" style="overflow:hidden; position: absolute; left: 0px; top: 0px; width: 752px; height: 552px; background-color: #D3D3D3; border-color: black; border-style: solid; border-width: 2px;">
-            <canvas id="GraphicsBox" width="751px" height="551px" style="overflow:hidden; position: absolute; width: 751px; height: 551px; left: 1px; top: 1px; right: 1px; bottom: 1px;" tabindex='1'>Hola</canvas>
-            <div id="EventCatcher" style="overflow:scroll; position: absolute; left: -100px; top: -100px; width: 1440px; height: 720px;" tabindex='1'>
-                <div style="height: 4000px; width: 10px;"></div>
-            </div>
-        </div>
+	<head>
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+		<meta content="utf-8" http-equiv="encoding">
+		<script type="text/javascript" src="main.js"></script>
+	</head>
+
+	<body> <!-- Can be moved into CSS file if we have too much formatting -->
+		<div>
+			<div id="BackgroundBox" style="overflow:hidden; position: absolute; left: 0px; top: 0px; width: 752px; height: 552px; background-color: #D3D3D3; border-color: black; border-style: solid; border-width: 2px;">
+				<canvas id="GraphicsBox" width="751px" height="551px" style="overflow:hidden; position: absolute; width: 751px; height: 551px; left: 1px; top: 1px; right: 1px; bottom: 1px;" tabindex='1'>Hola</canvas>
+				<div id="EventCatcher" style="overflow:scroll; position: absolute; left: -100px; top: -100px; width: 1440px; height: 720px;" tabindex='1'>
+					<div style="height: 4000px; width: 10px;"></div>
+				</div>
+			</div>
+			
+			<div>
+				<div style="position: absolute; margin-left: 760px">
+					<div>Player 1:</div>
+					<div id="P1S1"></div>
+					<div id="P1S2"></div>
+				</div>
+				<div style="position: absolute; margin-left: 760px; margin-top: 100px">
+					<div>Player 2:</div>
+					<div id="P2S1"></div>
+					<div id="P2S2"></div>
+				</div>
+				<div style="position: absolute; margin-left: 760px; margin-top: 200px">
+					<div id="WinnerText"></div>
+				</div>
+			</div>
+			
+			<script>
+			startLoading()
+			</script>
+		</div>
 		
-        <script>
-            startLoading()
-        </script>
-    </body>
+		<div style="position: absolute; margin-top: 560px">
+			<h2>Instructions</h2>
+			Player 1: Move with WASD and place bombs with Spacebar <br>
+			Player 2: Move with Arrow Keys and place bombs with Enter <br><br>
+			Blue Square = Explosion Length Increase <br>
+			Maroon Square = Maximum Bombs Increase
+		</div>
+	</body>
 	
 </html>

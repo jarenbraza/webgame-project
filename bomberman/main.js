@@ -5,6 +5,7 @@ const KEY_LEFT = 37, KEY_UP = 38, KEY_RIGHT = 39, KEY_DOWN = 40;
 const SCALE = 50;
 const GAME_RATE = 25;
 
+/* Player-Controlled Objects */
 class Hero {
 	constructor(x, y, leftKey, upKey, rightKey, downKey, bombKey, color) {
 		this.origX = x, this.origY = y, this.x = x, this.y = y;
@@ -18,6 +19,41 @@ class Hero {
 	}
 }
 
+/* Computer-Controlled Objects */
+class AI {
+	constructor(x, y) {
+		this.origX = x, this.origY = y, this.x = x, this.y = y;
+		this.rows = boardHeight / SCALE;
+		this.cols = boardWidth / SCALE;
+		this.fitArr = [];
+	}
+	
+	/* Generate a fitness array (Default: 11 rows, 15 columns) */
+	updateFitArr() {
+		// Generate new array of defaults (-100)
+		fitArr.length = 0;
+		for (i = 0; i < rows; i++) {
+			fitArr.push([]);
+			for (j = 0; j < cols; j++)
+				fitArr[i].push(-100);
+		}
+		
+		//Calculate values in fitness array
+		for (i = 0; i < rows; i++) {
+			for (j = 0; j < cols; j++) {
+				/* TODO */
+			}
+		}
+	}
+	
+	/* BFS of Adjacency Matrix (fitArr) */
+	/* Shortest path to largest non-negative fitness value */
+	/* Return first step (newx, newy) towards best fitness value */
+	searchPath() {
+		
+	}
+}
+
 var boardWidth = 750, boardHeight = 550;
 var gameInterval;
 var gameCanvas;
@@ -27,15 +63,15 @@ var eventCatcherDiv;
 // Bombs: 0 = Vacant, >0 = Timer Before Explosion
 // Bomb Type: 0 = Vacant, 1 = Player 1's Bomb, 2 = Player 2's Bomb, etc.
 // Explosions: 0 = Vacant, >0 = Explosion Duration Left
-// Player: Unimplemented
-var wallArr = [], bombArr = [], bombType = [], expArr =  [], playerArr = [], upgradeArr = [];
+// Player: 0 = Vacant, 1 = Player 1's Location, 2 = Player 2's Location, etc.
+// TO BE IMPLEMENTED Danger: 0 = Vacant, 1 = Explosion Eminent at Location
+var wallArr = [], bombArr = [], bombType = [], expArr =  [], playerArr = [], upgradeArr = [], dangerArr = [];
 
 var hero = [];
 var newHero = new Hero(0, 0, 65, 87, 68, 83, 32, "red");
 hero.push(newHero);
 var newHero = new Hero(boardWidth - SCALE, boardHeight - SCALE, 37, 38, 39, 40, 13, "green");
 hero.push(newHero);
-
 
 /* Loads event listeners and begins start up game */
 function startLoading() {
@@ -114,16 +150,14 @@ function updateHeroes(g) {
 	// Input: Canvas
 	// Result: Update player location array; Hero set dead if on explosion; Upgrades if on upgrade; If alive, draws heroes
 	
-	for (i = 0; i < boardHeight / SCALE; i++) {
-		for (j = 0; j < boardWidth / SCALE; j++) {
+	for (i = 0; i < boardHeight / SCALE; i++)
+		for (j = 0; j < boardWidth / SCALE; j++)
 			playerArr[i][j] = 0;
-		}
-	}
 	
 	for (i = 0; i < hero.length; i++) {
 		var x = hero[i].x;
 		var y = hero[i].y;
-		playerArr[y / SCALE][x / SCALE] = i + 1;
+		if (hero[i].alive) playerArr[y / SCALE][x / SCALE] = i + 1;
 		if (expArr[y / SCALE][x / SCALE] != 0) hero[i].alive = false;
 		if (hero[i].alive) {
 			g.fillStyle = hero[i].color;
@@ -160,7 +194,7 @@ function drawUpgrades(g) {
 	// Input: Canvas
 	// Result: Draws upgrades if it exists and there is no wall there
 	
-	for (i = 0; i < boardHeight / SCALE; i++) {
+	for (i = 0; i < boardHeight / SCALE; i++)
 		for (j = 0; j < boardWidth / SCALE; j++) {
 				if (upgradeArr[i][j] != 0 && wallArr[i][j] == 0) {
 					if (upgradeArr[i][j] == 1) g.fillStyle = "#00CED1";
@@ -169,7 +203,6 @@ function drawUpgrades(g) {
 					g.fillRect(j * SCALE, i * SCALE, SCALE, SCALE);
 				}
 		}
-	}
 }
 
 /* Sets bomb array (timer) at hero location and deletes a bomb from user */
@@ -299,7 +332,14 @@ function updateExp(g) {
 			}
 }
 
-
+/* TO BE IMPLEMENTED */
+function updateDanger() {
+	for (i = 0; i < boardHeight / SCALE; i++) {
+		for (j = 0; j < boardWidth / SCALE; j++) {
+			dangerArr[i][j] = 0;
+		}
+	}
+}
 
 /*** GAME LOOP ***/
 
@@ -316,6 +356,7 @@ function startGame() {
 		bombArr.push([]);
 		bombType.push([]);
 		upgradeArr.push([]);
+		dangerArr.push([]);
 		wallArr.push([]);
 		for (j = 0; j < boardWidth / SCALE; j++) {
 			// Insert columns
@@ -324,6 +365,7 @@ function startGame() {
 			bombArr[i].push(0);
 			bombType[i].push(0);
 			upgradeArr[i].push(0);
+			dangerArr[i].push(0);
 			if ((i % 2 == 1) && (j % 2 == 1))
 				wallArr[i].push(2);
 			else
@@ -397,6 +439,7 @@ function resetGame(E) {
 	}
 }
 
+/* Place player stats onto HTML elements */
 function displayStats() {
 	document.getElementById("P1S1").innerHTML = "Exp Length = " + hero[0].expLength;
 	document.getElementById("P1S2").innerHTML = "Number of Bombs = " + hero[0].maxBombs;

@@ -392,7 +392,7 @@ function startGame() {
 	for (i = 0; i < boardHeight / SCALE; i++)
 		for (j = 0; j < boardWidth / SCALE; j++)
 			if (wallArr[i][j] == 1)
-				if (Math.random() <= 0.2)
+				if (Math.random() <= 1.0)
 					upgradeArr[i][j] = Math.floor(Math.random() * 2) + 1;	// Random number from 1 to 2
 	
 	// Clear bombs and explosions
